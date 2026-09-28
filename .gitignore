@@ -1,0 +1,10 @@
+# Dependencias (se reinstalan con npm install)
+node_modules/
+
+# Compilados: se generan con node scripts/dist.mjs
+dist/
+release/
+
+# Varios
+*.log
+.DS_Store
