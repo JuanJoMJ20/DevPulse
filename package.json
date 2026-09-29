@@ -1,0 +1,20 @@
+{
+  "name": "devpulse",
+  "productName": "DevPulse",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Dashboard de productividad y bienestar para desarrolladores",
+  "author": "Juan José Muñoz",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "concurrently -k -n vite,app -c cyan,magenta \"vite --port 5180 --strictPort\" \"wait-on tcp:5180 && electron .\"",
+    "dev:web": "vite --port 5180",
+    "build": "tsc --noEmit && vite build",
+    "dist": "node scripts/dist.mjs"
+  },
+  "dependencies": {
+    "koffi": "^3.3.7",
+    "uiohook-napi": "^1.5.5"
+  },
+  "devDependencies": {
