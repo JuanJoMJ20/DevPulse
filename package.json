@@ -38,3 +38,23 @@
     "appId": "com.devpulse.app",
     "productName": "DevPulse",
     "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "package.json"
+    ],
+    "npmRebuild": false,
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "DevPulse",
+      "artifactName": "DevPulse.exe"
+    }
+  }
+}
