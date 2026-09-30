@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <script>
+      // Aplica el tema antes de pintar para evitar un destello del tema contrario
+      try {
+        var p = localStorage.getItem('devpulse:theme') || 'system'
