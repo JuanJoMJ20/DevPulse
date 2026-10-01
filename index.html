@@ -8,3 +8,14 @@
       // Aplica el tema antes de pintar para evitar un destello del tema contrario
       try {
         var p = localStorage.getItem('devpulse:theme') || 'system'
+        var dark = p === 'dark' || (p === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+      } catch (e) {}
+    </script>
+    <title>DevPulse</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
