@@ -10,3 +10,16 @@ const steps = [
   ['Compilando la interfaz', ['node_modules/vite/bin/vite.js', 'build']],
   ['Empaquetando el instalador', ['node_modules/electron-builder/cli.js', '--win', 'nsis']],
 ]
+
+rmSync('release', { recursive: true, force: true })
+
+for (const [label, args] of steps) {
+  console.log(`\n▸ ${label}…`)
+  const { status } = spawnSync(process.execPath, args, { stdio: 'inherit' })
+  if (status !== 0) {
+    console.error(`\n✗ Falló: ${label}. Revisa el mensaje de arriba.`)
+    process.exit(status ?? 1)
+  }
+}
+
+console.log('\n✓ Listo: release/DevPulse.exe')
