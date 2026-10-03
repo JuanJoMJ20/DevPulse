@@ -18,3 +18,23 @@ function createStore(dir, filename = 'devpulse-data.json') {
   }
 
   function flush() {
+    clearTimeout(timer)
+    timer = null
+    fs.mkdirSync(dir, { recursive: true })
+    const tmp = `${file}.tmp`
+    fs.writeFileSync(tmp, JSON.stringify(data))
+    fs.renameSync(tmp, file)
+  }
+
+  return {
+    get: (key) => data[key],
+    set(key, value) {
+      data[key] = value
+      clearTimeout(timer)
+      timer = setTimeout(flush, 400)
+    },
+    flush,
+  }
+}
+
+module.exports = { createStore }
