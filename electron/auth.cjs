@@ -24,3 +24,30 @@ function createAuth(dir) {
   } catch {
     // primera ejecución
   }
+
+  const save = () => {
+    fs.mkdirSync(dir, { recursive: true })
+    fs.writeFileSync(`${file}.tmp`, JSON.stringify(db))
+    fs.renameSync(`${file}.tmp`, file)
+  }
+
+  const findByEmail = (email) => db.users.find((u) => u.email === email.trim().toLowerCase())
+
+  return {
+    dataFileFor: (userId) => `devpulse-data-${userId}.json`,
+
+    status() {
+      const remembered = db.users.find((u) => u.id === db.remembered)
+      return { hasUsers: db.users.length > 0, user: remembered ? publicUser(remembered) : null }
+    },
+
+    register({ name, email, password }) {
+      const cleanName = String(name ?? '').trim()
+      const cleanEmail = String(email ?? '').trim().toLowerCase()
+      if (cleanName.length < 2) return { ok: false, code: 'name' }
+      if (!EMAIL_RE.test(cleanEmail)) return { ok: false, code: 'email' }
+      if (String(password ?? '').length < 8) return { ok: false, code: 'weak' }
+      if (findByEmail(cleanEmail)) return { ok: false, code: 'exists' }
+
+      const salt = crypto.randomBytes(16).toString('hex')
+      const user = { id: crypto.randomUUID(), name: cleanName, email: cleanEmail, salt, hash: hashPassword(password, salt), createdAt: Date.now() }
