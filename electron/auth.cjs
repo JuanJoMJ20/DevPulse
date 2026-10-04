@@ -51,3 +51,30 @@ function createAuth(dir) {
 
       const salt = crypto.randomBytes(16).toString('hex')
       const user = { id: crypto.randomUUID(), name: cleanName, email: cleanEmail, salt, hash: hashPassword(password, salt), createdAt: Date.now() }
+      const isFirst = db.users.length === 0
+      db.users.push(user)
+      db.remembered = user.id
+      save()
+      return { ok: true, user: publicUser(user), isFirst }
+    },
+
+    login({ email, password, remember }) {
+      const user = findByEmail(String(email ?? ''))
+      // Mismo coste y mismo mensaje exista o no la cuenta: no revela qué correos están registrados
+      const salt = user?.salt ?? 'no-user'
+      const attempt = Buffer.from(hashPassword(String(password ?? ''), salt), 'hex')
+      const stored = Buffer.from(user?.hash ?? '0'.repeat(SCRYPT.keylen * 2), 'hex')
+      if (!user || !crypto.timingSafeEqual(attempt, stored)) return { ok: false, code: 'credentials' }
+      db.remembered = remember ? user.id : null
+      save()
+      return { ok: true, user: publicUser(user) }
+    },
+
+    logout() {
+      db.remembered = null
+      save()
+    },
+  }
+}
+
+module.exports = { createAuth }
