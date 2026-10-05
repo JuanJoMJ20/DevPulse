@@ -38,3 +38,24 @@ function createForegroundReader() {
       const len = api.GetWindowTextW(hwnd, titleBuf, 512)
       const title = titleBuf.toString('utf16le', 0, len * 2)
 
+      const pid = [0]
+      api.GetWindowThreadProcessId(hwnd, pid)
+
+      let exe = ''
+      const handle = api.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid[0])
+      if (handle) {
+        const size = [1024]
+        if (api.QueryFullProcessImageNameW(handle, 0, pathBuf, size)) {
+          exe = path.basename(pathBuf.toString('utf16le', 0, size[0] * 2))
+        }
+        api.CloseHandle(handle)
+      }
+
+      return { exe, title, pid: pid[0] }
+    } catch {
+      return null
+    }
+  }
+}
+
+module.exports = { createForegroundReader }
