@@ -25,3 +25,30 @@ async function runningProcesses() {
  * el siguiente escaneo, la fuerza.
  */
 function createBlocker(emit) {
+  let config = { armed: false, apps: [] }
+  let timer = null
+  let scanning = false
+  const askedToClose = new Set()
+
+  async function scan() {
+    if (scanning || !config.armed || process.platform !== 'win32') return
+    scanning = true
+    try {
+      const running = await runningProcesses()
+      for (const app of config.apps) {
+        const exe = app.process.toLowerCase()
+        if (PROTECTED.has(exe)) continue
+        if (!running.has(exe)) {
+          askedToClose.delete(exe)
+          continue
+        }
+        const force = askedToClose.has(exe)
+        const args = force ? ['/im', app.process, '/t', '/f'] : ['/im', app.process, '/t']
+        const { error, stderr } = await run('taskkill', args)
+        if (!force) {
+          askedToClose.add(exe)
+          if (!error) emit({ type: 'closed', app: app.name })
+        } else if (error) {
+          const denied = /acceso denegado|access is denied/i.test(stderr)
+          emit({ type: 'failed', app: app.name, reason: denied ? 'denied' : 'unknown' })
+          askedToClose.delete(exe)
