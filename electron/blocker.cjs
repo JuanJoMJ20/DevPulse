@@ -52,3 +52,30 @@ function createBlocker(emit) {
           const denied = /acceso denegado|access is denied/i.test(stderr)
           emit({ type: 'failed', app: app.name, reason: denied ? 'denied' : 'unknown' })
           askedToClose.delete(exe)
+        } else {
+          emit({ type: 'closed', app: app.name })
+          askedToClose.delete(exe)
+        }
+      }
+    } finally {
+      scanning = false
+    }
+  }
+
+  return {
+    configure(next) {
+      config = next
+      clearInterval(timer)
+      askedToClose.clear()
+      if (config.armed) {
+        void scan()
+        timer = setInterval(scan, SCAN_MS)
+      }
+    },
+    stop() {
+      clearInterval(timer)
+    },
+  }
+}
+
+module.exports = { createBlocker }
