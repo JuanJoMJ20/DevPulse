@@ -89,3 +89,34 @@ function startSignals(store, model, emit) {
     prune(keys, now - p.windowMs)
     prune(corrections, now - p.windowMs)
     prune(switches, now - p.windowMs)
+
+
+    const idleSec = powerMonitor.getSystemIdleTime()
+    const switchesPerMin = switches.length / (p.windowMs / 60_000)
+    const continuousMin = streakStart ? (now - streakStart) / 60_000 : 0
+    const kpm = keys.filter((t) => t > now - 60_000).length
+    const correctionRatio = keys.length >= p.minKeys ? corrections.length / keys.length : 0
+
+    // Irregularidad del ritmo: coeficiente de variación entre pulsaciones dentro de ráfagas
+    const gaps = []
+    for (let i = 1; i < keys.length; i++) {
+      const gap = keys[i] - keys[i - 1]
+      if (gap < 2000) gaps.push(gap)
+    }
+    let rhythmCv = 0
+    if (gaps.length >= p.minKeys - 10) {
+      const mean = gaps.reduce((a, b) => a + b, 0) / gaps.length
+      const sd = Math.sqrt(gaps.reduce((a, g) => a + (g - mean) ** 2, 0) / gaps.length)
+      rhythmCv = sd / mean
+    }
+
+    factors = {
+      fragmentation: clamp01((switchesPerMin - p.switchFloor) / p.switchSpan),
+      noBreak: clamp01((continuousMin - p.noBreakFrom) / p.noBreakSpan),
+      corrections: clamp01((correctionRatio - 0.06) / 0.14), // >20 % de correcciones = máxima
+      rhythm: clamp01((rhythmCv - 0.7) / 0.8),
+    }
+
+    let target = 100 * model.predict(factors)
+    if (idleSec > 120) target *= 0.3 // estás descansando
+
