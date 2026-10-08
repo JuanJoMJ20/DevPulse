@@ -28,3 +28,34 @@ const prune = (arr, since) => {
  * una corrección (Retroceso/Suprimir). Nunca guarda qué tecla se pulsó.
  */
 function startKeyboard(onKey) {
+  try {
+    const { uIOhook, UiohookKey } = require('uiohook-napi')
+    const corrections = new Set([UiohookKey.Backspace, UiohookKey.Delete])
+    uIOhook.on('keydown', (e) => onKey(corrections.has(e.keycode)))
+    uIOhook.start()
+    return { ok: true, stop: () => uIOhook.stop() }
+  } catch {
+    return { ok: false, stop: () => {} }
+  }
+}
+
+/**
+ * Convierte la actividad del PC en cuatro factores (0–1) y deja que el modelo
+ * personal (model.cjs) decida cuánto pesa cada uno en la carga final.
+ */
+function startSignals(store, model, emit) {
+  const readForeground = createForegroundReader()
+
+  const keys = []
+  const corrections = []
+  const switches = []
+  let lastExe = null
+  let lastApp = null
+  let streakStart = null
+  let load = 20
+  let factors = { fragmentation: 0, noBreak: 0, corrections: 0, rhythm: 0 }
+
+  const stats = store.get('stats') ?? {}
+  const todayStats = () => (stats[today()] ??= { activeSeconds: 0, switches: 0 })
+
+  const keyboard = startKeyboard((isCorrection) => {
