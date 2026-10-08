@@ -59,3 +59,33 @@ function startSignals(store, model, emit) {
   const todayStats = () => (stats[today()] ??= { activeSeconds: 0, switches: 0 })
 
   const keyboard = startKeyboard((isCorrection) => {
+    const now = Date.now()
+    keys.push(now)
+    if (isCorrection) corrections.push(now)
+  })
+
+  const poll = setInterval(() => {
+    const now = Date.now()
+    const idle = powerMonitor.getSystemIdleTime()
+
+    if (idle < ACTIVE_IDLE_SEC) todayStats().activeSeconds += POLL_MS / 1000
+    if (idle >= THRESHOLDS.breakSec) streakStart = null
+    else if (streakStart === null) streakStart = now
+
+    const fg = readForeground()
+    if (fg && fg.exe) {
+      lastApp = fg
+      if (lastExe && fg.exe !== lastExe) {
+        switches.push(now)
+        todayStats().switches += 1
+      }
+      lastExe = fg.exe
+    }
+  }, POLL_MS)
+
+  const compute = setInterval(() => {
+    const p = THRESHOLDS
+    const now = Date.now()
+    prune(keys, now - p.windowMs)
+    prune(corrections, now - p.windowMs)
+    prune(switches, now - p.windowMs)
