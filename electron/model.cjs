@@ -23,3 +23,28 @@ const LEARNING_RATE = 1
 const l2For = (n) => 0.3 / (n + 2)
 
 const sigmoid = (z) => 1 / (1 + Math.exp(-z))
+const dot = (w, x) => w.reduce((s, wi, i) => s + wi * x[i], 0)
+const toVector = (factors) => FEATURES.map((f) => factors[f] ?? 0)
+
+/** Error medio en puntos de carga (0–100) de unos pesos sobre las muestras */
+function meanError(w, b, samples) {
+  if (!samples.length) return null
+  const total = samples.reduce((s, { x, y }) => s + Math.abs(sigmoid(b + dot(w, x)) - y), 0)
+  return Math.round((total / samples.length) * 100)
+}
+
+function train(samples, start) {
+  let w = [...start.w]
+  let b = start.b
+  const n = samples.length
+  const L2 = l2For(n)
+  for (let epoch = 0; epoch < EPOCHS; epoch++) {
+    const gw = w.map((wi, i) => L2 * (wi - PRIOR.w[i]))
+    let gb = L2 * (b - PRIOR.b)
+    for (const { x, y } of samples) {
+      const err = sigmoid(b + dot(w, x)) - y // derivada de la entropía cruzada
+      for (let i = 0; i < w.length; i++) gw[i] += (err * x[i]) / n
+      gb += err / n
+    }
+    w = w.map((wi, i) => wi - LEARNING_RATE * gw[i])
+    b -= LEARNING_RATE * gb
