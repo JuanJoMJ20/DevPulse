@@ -73,3 +73,28 @@ function createModel(store) {
   }
 
   return {
+    /** Probabilidad de fatiga (0–1) para las señales actuales */
+    predict: (factors) => sigmoid(state.b + dot(state.w, toVector(factors))),
+
+    /** Registra cómo se siente el usuario (1 = fresco … 5 = agotado) y reentrena */
+    checkIn(rating, factors) {
+      const y = (Math.min(5, Math.max(1, rating)) - 1) / 4
+      const predicted = sigmoid(state.b + dot(state.w, toVector(factors)))
+      state.samples = [...state.samples, { x: toVector(factors), y, at: Date.now() }].slice(-MAX_SAMPLES)
+      const next = train(state.samples, state)
+      state = { ...state, ...next, trainedAt: Date.now(), lastCheckIn: Date.now() }
+      persist()
+      return { ...summary(), lastPrediction: Math.round(predicted * 100), lastAnswer: Math.round(y * 100) }
+    },
+
+    reset() {
+      state = { w: [...PRIOR.w], b: PRIOR.b, samples: [], trainedAt: null, lastCheckIn: null }
+      persist()
+      return summary()
+    },
+
+    summary,
+  }
+}
+
+module.exports = { createModel, FEATURES }
