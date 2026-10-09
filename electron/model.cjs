@@ -48,3 +48,28 @@ function train(samples, start) {
     }
     w = w.map((wi, i) => wi - LEARNING_RATE * gw[i])
     b -= LEARNING_RATE * gb
+  }
+  return { w, b }
+}
+
+function createModel(store) {
+  const saved = store.get('model')
+  let state = saved?.w ? saved : { w: [...PRIOR.w], b: PRIOR.b, samples: [], trainedAt: null, lastCheckIn: null }
+
+  const persist = () => store.set('model', state)
+
+  function summary() {
+    return {
+      features: FEATURES,
+      weights: state.w.map((v) => Math.round(v * 100) / 100),
+      prior: PRIOR.w,
+      bias: Math.round(state.b * 100) / 100,
+      samples: state.samples.length,
+      errorPrior: meanError(PRIOR.w, PRIOR.b, state.samples),
+      errorModel: meanError(state.w, state.b, state.samples),
+      trainedAt: state.trainedAt,
+      lastCheckIn: state.lastCheckIn,
+    }
+  }
+
+  return {
