@@ -120,3 +120,34 @@ function startSignals(store, model, emit) {
     let target = 100 * model.predict(factors)
     if (idleSec > 120) target *= 0.3 // estás descansando
 
+    load += (target - load) * p.smoothing // suavizado para que el layout no reaccione a picos sueltos
+
+    store.set('stats', stats)
+
+    const t = todayStats()
+    emit({
+      load: Math.round(load),
+      factors,
+      switchesPerMin: Math.round(switchesPerMin * 10) / 10,
+      continuousMin: Math.round(continuousMin * 10) / 10,
+      kpm,
+      correctionRatio: Math.round(correctionRatio * 100) / 100,
+      idleSec,
+      keyboard: keyboard.ok,
+      activeApp: lastApp ? { exe: lastApp.exe, title: lastApp.title } : null,
+      today: { activeMinutes: Math.round(t.activeSeconds / 60), switches: t.switches },
+      model: model.summary(),
+    })
+  }, EMIT_MS)
+
+  return {
+    currentFactors: () => factors,
+    stop() {
+      clearInterval(poll)
+      clearInterval(compute)
+      keyboard.stop()
+    },
+  }
+}
+
+module.exports = { startSignals }
