@@ -13,3 +13,19 @@ contextBridge.exposeInMainWorld('devpulse', {
     login: (form) => ipcRenderer.invoke('auth:login', form),
     logout: () => ipcRenderer.invoke('auth:logout'),
   },
+  store: {
+    get: (key) => ipcRenderer.invoke('store:get', key),
+    set: (key, value) => ipcRenderer.invoke('store:set', key, value),
+  },
+  onSignals: (cb) => subscribe('signals', cb),
+  model: {
+    checkIn: (rating) => ipcRenderer.invoke('model:checkin', rating),
+    reset: () => ipcRenderer.invoke('model:reset'),
+  },
+  blocker: {
+    configure: (config) => ipcRenderer.send('blocker:configure', config),
+    onEvent: (cb) => subscribe('blocker:event', cb),
+  },
+  notify: (title, body) => ipcRenderer.send('notify', { title, body }),
+  setTheme: (theme) => ipcRenderer.send('theme:set', theme),
+})
