@@ -68,3 +68,38 @@ function endSession() {
 function createWindow() {
   const theme = WINDOW_THEME[readSavedTheme()]
   win = new BrowserWindow({
+    width: 1440,
+    height: 920,
+    minWidth: 960,
+    minHeight: 640,
+    backgroundColor: theme.background,
+    title: 'DevPulse',
+    show: false,
+    titleBarStyle: 'hidden',
+    titleBarOverlay: theme.overlay,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  })
+
+  win.once('ready-to-show', () => win.show())
+
+  // Los enlaces externos se abren en el navegador, nunca dentro de la app
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url)
+    return { action: 'deny' }
+  })
+
+  if (app.isPackaged) win.loadFile(path.join(__dirname, '..', 'dist', 'index.html'))
+  else win.loadURL(DEV_URL)
+}
+
+app.whenReady().then(() => {
+  auth = createAuth(app.getPath('userData'))
+  blocker = createBlocker((event) => send('blocker:event', event))
+
+  // ── Cuentas
+  ipcMain.handle('auth:status', () => {
