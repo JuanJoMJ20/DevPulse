@@ -103,3 +103,38 @@ app.whenReady().then(() => {
 
   // ── Cuentas
   ipcMain.handle('auth:status', () => {
+    const status = auth.status()
+    if (status.user && session?.user.id !== status.user.id) startSession(status.user)
+    return status
+  })
+  ipcMain.handle('auth:register', (_e, form) => {
+    const result = auth.register(form)
+    if (result.ok) startSession(result.user, { adoptLegacy: result.isFirst })
+    return result
+  })
+  ipcMain.handle('auth:login', (_e, form) => {
+    const result = auth.login(form)
+    if (result.ok) startSession(result.user)
+    return result
+  })
+  ipcMain.handle('auth:logout', () => {
+    endSession()
+    auth.logout()
+    return true
+  })
+
+  // ── Datos de la cuenta activa
+  ipcMain.handle('store:get', (_e, key) => session?.store.get(key))
+  ipcMain.handle('store:set', (_e, key, value) => {
+    if (!session) return false
+    try {
+      session.store.set(key, value)
+      return true
+    } catch {
+      return false
+    }
+  })
+
+  ipcMain.on('theme:set', (_e, name) => {
+    const theme = WINDOW_THEME[name === 'light' ? 'light' : 'dark']
+    if (win && !win.isDestroyed()) {
