@@ -138,3 +138,39 @@ app.whenReady().then(() => {
   ipcMain.on('theme:set', (_e, name) => {
     const theme = WINDOW_THEME[name === 'light' ? 'light' : 'dark']
     if (win && !win.isDestroyed()) {
+      win.setBackgroundColor(theme.background)
+      win.setTitleBarOverlay(theme.overlay)
+    }
+    try {
+      fs.writeFileSync(prefsFile(), JSON.stringify({ theme: name === 'light' ? 'light' : 'dark' }))
+    } catch {
+      // si no se puede guardar, la ventana arrancará oscura y se corregirá al cargar
+    }
+  })
+
+  ipcMain.on('notify', (_e, { title, body }) => {
+    if (Notification.isSupported()) new Notification({ title, body, silent: false }).show()
+  })
+
+  ipcMain.on('blocker:configure', (_e, config) => {
+    if (session) blocker.configure(config)
+  })
+
+  ipcMain.handle('model:checkin', (_e, rating) => session?.model.checkIn(rating, session.signals.currentFactors()))
+  ipcMain.handle('model:reset', () => session?.model.reset())
+
+  createWindow()
+})
+
+app.on('second-instance', () => {
+  if (!win) return
+  if (win.isMinimized()) win.restore()
+  win.focus()
+})
+
+app.on('window-all-closed', () => app.quit())
+
+app.on('before-quit', () => {
+  endSession()
+  blocker?.stop()
+})
