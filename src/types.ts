@@ -55,3 +55,31 @@ export interface ModelSummary {
 export interface HumanErrorContent {
   /** Qué pasó, en lenguaje humano */
   what: string
+  /** Por qué pasó, sin jerga técnica */
+  why: string
+  /** Qué puede hacer el usuario ahora */
+  next: string
+}
+
+export interface Subtask {
+  id: string
+  text: string
+  done: boolean
+}
+
+export interface Task {
+  id: string
+  title: string
+  subtasks: Subtask[]
+}
+
+/** Segundos de enfoque por fecha (YYYY-MM-DD) y hora (0–23) */
+export type FocusLog = Record<string, number[]>
+
+export interface BlockedApp {
+  id: string
+  name: string
+  process: string
+  blocked: boolean
+}
+
