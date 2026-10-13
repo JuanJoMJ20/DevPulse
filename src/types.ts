@@ -26,3 +26,32 @@ export interface User {
   createdAt: number
 }
 
+export type AuthErrorCode = 'name' | 'email' | 'weak' | 'exists' | 'credentials'
+
+export type AuthResult = { ok: true; user: User; isFirst?: boolean } | { ok: false; code: AuthErrorCode }
+
+export type WidgetId = 'pomodoro' | 'code' | 'metrics' | 'model' | 'heatmap' | 'blocker' | 'notifications'
+
+export type FactorKey = 'fragmentation' | 'noBreak' | 'corrections' | 'rhythm'
+
+/** Estado del modelo personal de fatiga (regresión logística en el equipo) */
+export interface ModelSummary {
+  features: FactorKey[]
+  weights: number[]
+  prior: number[]
+  bias: number
+  samples: number
+  /** Error medio en puntos (0–100) de los pesos iniciales sobre tus respuestas */
+  errorPrior: number | null
+  /** Error medio en puntos del modelo ya entrenado */
+  errorModel: number | null
+  trainedAt: number | null
+  lastCheckIn: number | null
+  /** Solo en la respuesta a un check-in: lo que predijo antes de aprender de ti */
+  lastPrediction?: number
+  lastAnswer?: number
+}
+
+export interface HumanErrorContent {
+  /** Qué pasó, en lenguaje humano */
+  what: string
