@@ -14,3 +14,20 @@ interface DevPulseBridge {
   onSignals(cb: (signals: Signals) => void): () => void
   model: {
     checkIn(rating: number): Promise<ModelSummary>
+    reset(): Promise<ModelSummary>
+  }
+  blocker: {
+    configure(config: { armed: boolean; apps: Pick<BlockedApp, 'name' | 'process'>[] }): void
+    onEvent(cb: (event: BlockerEvent) => void): () => void
+  }
+  notify(title: string, body: string): void
+  /** Ajusta la barra de título nativa y el fondo de la ventana al tema */
+  setTheme(theme: 'light' | 'dark'): void
+}
+
+declare global {
+  interface Window {
+    /** Solo existe dentro de la app de escritorio */
+    devpulse?: DevPulseBridge
+  }
+}
