@@ -83,3 +83,32 @@ export interface BlockedApp {
   blocked: boolean
 }
 
+export interface BlockerState {
+  armed: boolean
+  apps: BlockedApp[]
+  closedByDay: Record<string, number>
+}
+
+export interface ActivityEvent {
+  id: string
+  at: number
+  kind: 'session' | 'blocker' | 'load' | 'task'
+  text: string
+}
+
+/** Lo que el proceso principal envía cada 2 s */
+export interface Signals {
+  load: number
+  factors: Record<FactorKey, number>
+  model: ModelSummary
+  switchesPerMin: number
+  continuousMin: number
+  kpm: number
+  correctionRatio: number
+  idleSec: number
+  keyboard: boolean
+  activeApp: { exe: string; title: string } | null
+  today: { activeMinutes: number; switches: number }
+}
+
+export type BlockerEvent = { type: 'closed'; app: string } | { type: 'failed'; app: string; reason: 'denied' | 'unknown' }
