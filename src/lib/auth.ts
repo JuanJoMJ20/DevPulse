@@ -48,3 +48,28 @@ const browserAuth = {
     const user: StoredUser = { id: crypto.randomUUID(), name: name.trim(), email: cleanEmail, createdAt: Date.now(), salt, hash: await pbkdf2(password, salt) }
     localStorage.setItem(LS_USERS, JSON.stringify([...users, user]))
     localStorage.setItem(LS_REMEMBERED, user.id)
+    return { ok: true, user: strip(user), isFirst: users.length === 0 }
+  },
+  async login({ email, password, remember }: { email: string; password: string; remember: boolean }): Promise<AuthResult> {
+    const user = readUsers().find((u) => u.email === email.trim().toLowerCase())
+    if (!user || (await pbkdf2(password, user.salt)) !== user.hash) return { ok: false, code: 'credentials' }
+    if (remember) localStorage.setItem(LS_REMEMBERED, user.id)
+    else localStorage.removeItem(LS_REMEMBERED)
+    return { ok: true, user: strip(user) }
+  },
+  async logout() {
+    localStorage.removeItem(LS_REMEMBERED)
+    return true
+  },
+}
+
+export const auth = () => window.devpulse?.auth ?? browserAuth
+
+/** Mensajes humanos para cada fallo: qué pasó, y qué hacer, en una línea */
+export const AUTH_MESSAGES: Record<string, string> = {
+  name: 'Escribe tu nombre (al menos 2 letras).',
+  email: 'Ese correo no parece válido. Revisa que tenga @ y un dominio.',
+  weak: 'La contraseña necesita al menos 8 caracteres.',
+  exists: 'Ya hay una cuenta con ese correo en este equipo. Inicia sesión con ella.',
+  credentials: 'El correo o la contraseña no coinciden. Revísalos e inténtalo de nuevo.',
+}
