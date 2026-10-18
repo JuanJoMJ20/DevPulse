@@ -38,3 +38,24 @@ export const LAYOUTS: Record<StressLevel, LayoutConfig> = {
       pomodoro: 'md:col-span-2 xl:col-span-2 xl:row-span-2',
       metrics: 'xl:col-span-1',
       blocker: 'xl:col-span-1',
+      code: 'md:col-span-2 xl:col-span-2',
+      heatmap: 'md:col-span-2 xl:col-span-1',
+      model: 'md:col-span-2 xl:col-span-3',
+    },
+  },
+  high: {
+    label: 'Enfoque Absoluto',
+    description: '2 columnas · solo temporizador y notas',
+    grid: 'md:grid-cols-2',
+    slots: {
+      pomodoro: 'md:col-span-1',
+      code: 'md:col-span-1',
+    },
+  },
+}
+
+export const HIDDEN_COUNT: Record<StressLevel, number> = {
+  low: 0,
+  medium: WIDGET_ORDER.length - Object.keys(LAYOUTS.medium.slots).length,
+  high: WIDGET_ORDER.length - Object.keys(LAYOUTS.high.slots).length,
+}
