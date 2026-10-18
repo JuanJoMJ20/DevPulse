@@ -18,3 +18,23 @@ export const WIDGET_ORDER: WidgetId[] = ['pomodoro', 'metrics', 'code', 'blocker
 export const LAYOUTS: Record<StressLevel, LayoutConfig> = {
   low: {
     label: 'Vista densa',
+    description: '4 columnas · todos los paneles',
+    grid: 'md:grid-cols-2 xl:grid-cols-4',
+    slots: {
+      pomodoro: 'md:col-span-2 xl:col-span-2 xl:row-span-2',
+      metrics: 'md:col-span-2 xl:col-span-2',
+      code: 'md:col-span-2 xl:col-span-2',
+      heatmap: 'md:col-span-2 xl:col-span-2',
+      blocker: 'xl:col-span-1',
+      notifications: 'xl:col-span-1',
+      model: 'md:col-span-2 xl:col-span-4',
+    },
+  },
+  medium: {
+    label: 'Vista equilibrada',
+    description: '3 columnas · notificaciones silenciadas',
+    grid: 'md:grid-cols-2 xl:grid-cols-3',
+    slots: {
+      pomodoro: 'md:col-span-2 xl:col-span-2 xl:row-span-2',
+      metrics: 'xl:col-span-1',
+      blocker: 'xl:col-span-1',
