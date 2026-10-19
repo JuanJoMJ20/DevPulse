@@ -56,3 +56,33 @@ export const tourSteps = (name: string): TourStep[] => [
     title: 'Notas de la sesión',
     body: 'Apunta aquí lo que no quieres olvidar sin salir de tu flujo. Se guarda solo. Arriba a la derecha ves la app en la que estás trabajando.',
   },
+  {
+    target: 'blocker',
+    title: 'Bloqueador de contexto',
+    body: 'Con el interruptor de arriba activas el escudo: cierra las apps marcadas de la lista. Puedes añadir cualquier programa escribiendo su nombre, por ejemplo steam.exe.',
+  },
+  {
+    target: 'heatmap',
+    title: 'Mapa de flujo profundo',
+    body: 'Cada casilla es una hora de los últimos 7 días; cuanto más intensa, más minutos de enfoque. Te dice a qué horas rindes mejor. Con el teclado, entra con Tab y recórrelo con las flechas.',
+  },
+  {
+    target: 'model',
+    title: 'Tu modelo de IA',
+    body: 'Aquí ves lo que la IA ha aprendido de ti: cuánto pesa cada señal en tu fatiga. Cada vez que respondes «¿cómo te sientes?» se reentrena. Responde mientras trabajas para que aprenda mejor.',
+  },
+  {
+    target: 'notifications',
+    title: 'Actividad',
+    body: 'El historial de lo que ha pasado: sesiones completadas, tareas terminadas, apps cerradas por el bloqueador y lo que ha aprendido el modelo.',
+  },
+  {
+    target: 'user-menu',
+    title: 'Tu cuenta',
+    body: 'Desde aquí abres Ajustes (tema, duración del Pomodoro, cada cuánto te pregunta la IA y si el bloqueador se activa solo), repites el tutorial o cierras sesión. Cada cuenta tiene sus propios datos y su propio modelo.',
+  },
+  {
+    title: 'Listo para empezar',
+    body: 'Crea tu primera tarea y pulsa Iniciar. Cuando la carga pase de 70, la pantalla pasará a Enfoque Absoluto y solo quedarán el temporizador y tus notas.',
+  },
+]
