@@ -29,3 +29,34 @@ async function writeValue(key: string, value: unknown): Promise<boolean> {
 
 /**
  * useState que sobrevive a reinicios. En escritorio guarda en %APPDATA%\DevPulse;
+ * en el navegador, en localStorage. `ready` es false hasta leer el valor guardado,
+ * para no sobrescribirlo con el valor inicial.
+ */
+export function usePersistentState<T>(key: string, initial: T, onSaveError?: () => void) {
+  const [value, setValue] = useState<T>(initial)
+  const [ready, setReady] = useState(false)
+  const onErrorRef = useRef(onSaveError)
+  onErrorRef.current = onSaveError
+
+  useEffect(() => {
+    let alive = true
+    readValue<T>(key).then((stored) => {
+      if (!alive) return
+      if (stored !== undefined) setValue(stored)
+      setReady(true)
+    })
+    return () => {
+      alive = false
+    }
+  }, [key])
+
+  useEffect(() => {
+    if (!ready) return
+    writeValue(key, value).then((ok) => {
+      if (!ok) onErrorRef.current?.()
+    })
+  }, [key, value, ready])
+
+  const set = useCallback((next: SetStateAction<T>) => setValue(next), [])
+  return [value, set, ready] as const
+}
