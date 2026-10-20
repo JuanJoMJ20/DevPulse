@@ -24,3 +24,29 @@ const clamp = (n: number) => Math.min(100, Math.max(0, n))
  * cae a una simulación para poder diseñar la UI sin Electron.
  */
 export function useStressEngine() {
+  const [auto, setAuto] = useState(true)
+  const [signals, setSignals] = useState<Signals | null>(null)
+  const [load, setLoad] = useState(20)
+  const [autoLevel, setAutoLevel] = useState<StressLevel>('low')
+  const [manualLevel, setManualLevel] = useState<StressLevel>('low')
+  const [history, setHistory] = useState<number[]>(() => Array(HISTORY_SIZE).fill(20))
+
+  useEffect(() => {
+    if (window.devpulse) {
+      return window.devpulse.onSignals((s) => {
+        setSignals(s)
+        setLoad(s.load)
+      })
+    }
+    const id = window.setInterval(() => {
+      setLoad((prev) => clamp(prev + (40 - prev) * 0.035 + (Math.random() - 0.5) * 7))
+    }, 2000)
+    return () => window.clearInterval(id)
+  }, [])
+
+  useEffect(() => {
+    setHistory((h) => [...h.slice(1), load])
+    setAutoLevel((prev) => nextLevel(prev, load))
+  }, [load])
+
+  // Solo en el navegador: forzar un pico para probar el layout
