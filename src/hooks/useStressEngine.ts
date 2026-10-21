@@ -50,3 +50,30 @@ export function useStressEngine() {
   }, [load])
 
   // Solo en el navegador: forzar un pico para probar el layout
+  const injectSpike = useCallback(() => {
+    setAuto(true)
+    setLoad(91)
+  }, [])
+
+  const override = useCallback((level: StressLevel | 'auto') => {
+    if (level === 'auto') {
+      setAuto(true)
+      return
+    }
+    setAuto(false)
+    setManualLevel(level)
+  }, [])
+
+  return {
+    load: Math.round(load),
+    history,
+    signals,
+    isDesktop,
+    level: auto ? autoLevel : manualLevel,
+    /** Nivel según la carga (con histéresis), aunque el layout esté fijado a mano */
+    loadLevel: autoLevel,
+    auto,
+    override,
+    injectSpike: isDesktop ? undefined : injectSpike,
+  }
+}
