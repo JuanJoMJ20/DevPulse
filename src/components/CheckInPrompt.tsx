@@ -19,3 +19,25 @@ export function CheckInPrompt({ onAnswer, onSkip }: CheckInPromptProps) {
       </p>
       <div className="mt-3 grid grid-cols-5 gap-1">
         {RATINGS.map((r) => (
+          <button
+            key={r.value}
+            type="button"
+            onClick={() => onAnswer(r.value)}
+            title={r.label}
+            aria-label={`${r.value}: ${r.label}`}
+            className="rounded-lg border border-line py-1.5 font-mono text-sm font-semibold text-fg transition hover:border-accent/50 hover:bg-accent/10"
+          >
+            {r.value}
+          </button>
+        ))}
+      </div>
+      <div className="mt-2 flex justify-between text-xs text-muted">
+        <span aria-hidden>Fresco</span>
+        <button type="button" onClick={onSkip} className="rounded px-1 text-muted underline-offset-2 hover:text-fg hover:underline">
+          Ahora no
+        </button>
+        <span aria-hidden>Agotado</span>
+      </div>
+    </div>
+  )
+}
