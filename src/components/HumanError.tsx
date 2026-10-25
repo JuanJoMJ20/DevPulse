@@ -58,3 +58,33 @@ export function HumanError({ what, why, next, onRetry, onDismiss, retryLabel = '
               <p className={i === 0 ? 'mt-0.5 text-[15px] font-semibold leading-snug text-fg' : 'mt-0.5 text-sm leading-snug text-muted'}>{content[step.key]}</p>
             </li>
           ))}
+        </ol>
+
+        {onDismiss && (
+          <button
+            type="button"
+            onClick={onDismiss}
+            aria-label="Cerrar aviso"
+            className="-mt-1 -mr-1 grid size-8 shrink-0 place-items-center rounded-md text-subtle transition hover:bg-fg/5 hover:text-fg"
+          >
+            <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden>
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {onRetry && (
+        <div className="mt-4 flex justify-end gap-2 border-t border-line pt-4">
+          <button
+            type="button"
+            onClick={onRetry}
+            className="rounded-lg bg-warn-fill px-3.5 py-1.5 text-sm font-semibold text-on-fill transition hover:opacity-90"
+          >
+            {retryLabel}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
