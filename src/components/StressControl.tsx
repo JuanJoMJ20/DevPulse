@@ -54,3 +54,32 @@ export function StressControl({ load, loadLevel, level, auto, onOverride, onSpik
         </div>
       </div>
 
+      <div data-tour="layout-control" role="radiogroup" aria-label="Control de la vista" className="inline-flex shrink-0 rounded-xl border border-line bg-surface p-1 backdrop-blur-xl">
+        {OPTIONS.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            role="radio"
+            aria-checked={selected === o.value}
+            title={o.hint}
+            onClick={() => onOverride(o.value)}
+            className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${selected === o.value ? 'bg-fg/10 text-fg' : 'text-muted hover:text-fg'}`}
+          >
+            {o.value === 'auto' && <span aria-hidden className={`mr-1.5 inline-block size-1.5 rounded-full ${auto ? 'animate-pulse-soft bg-accent-fill' : 'bg-subtle'}`} />}
+            {o.label}
+          </button>
+        ))}
+      </div>
+
+      {onSpike && (
+        <button
+          type="button"
+          onClick={onSpike}
+          className="rounded-xl border border-danger/30 bg-danger/10 px-3 py-2 text-xs font-medium text-danger transition hover:border-danger/50"
+        >
+          Simular pico de fatiga
+        </button>
+      )}
+    </div>
+  )
+}
