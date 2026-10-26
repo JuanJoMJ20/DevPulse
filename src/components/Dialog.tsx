@@ -74,3 +74,41 @@ export function Dialog({ title, description, onClose, children, size = 'md' }: D
             {description}
           </p>
         )}
+        <div className="mt-5">{children}</div>
+      </div>
+    </div>
+  )
+}
+
+interface ConfirmDialogProps {
+  title: string
+  description: string
+  confirmLabel: string
+  onConfirm: () => void
+  onCancel: () => void
+}
+
+/** Confirmación para acciones que no se pueden deshacer */
+export function ConfirmDialog({ title, description, confirmLabel, onConfirm, onCancel }: ConfirmDialogProps) {
+  return (
+    <Dialog title={title} description={description} onClose={onCancel} size="sm">
+      <div className="flex justify-end gap-2">
+        <button type="button" data-autofocus onClick={onCancel} className={BUTTON_SECONDARY}>
+          Cancelar
+        </button>
+        <button
+          type="button"
+          onClick={onConfirm}
+          className="h-9 rounded-lg bg-danger-fill px-4 text-sm font-semibold text-on-danger transition hover:opacity-90"
+        >
+          {confirmLabel}
+        </button>
+      </div>
+    </Dialog>
+  )
+}
+
+export const BUTTON_SECONDARY =
+  'h-9 rounded-lg border border-line px-4 text-sm font-medium text-fg-2 transition hover:border-line-strong hover:text-fg'
+export const BUTTON_PRIMARY =
+  'h-9 rounded-lg bg-accent-fill px-4 text-sm font-semibold text-on-accent transition hover:bg-accent-hover'
