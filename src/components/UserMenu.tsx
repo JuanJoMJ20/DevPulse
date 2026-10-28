@@ -76,3 +76,43 @@ export function UserMenu({ user, onSettings, onTutorial, onSignOut }: UserMenuPr
         </svg>
       </button>
 
+      {open && (
+        <div
+          ref={menuRef}
+          role="menu"
+          aria-label="Opciones de la cuenta"
+          onKeyDown={onMenuKey}
+          className="animate-rise absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border border-line bg-elevated shadow-[var(--shadow-pop)]"
+        >
+          <div className="border-b border-line px-4 py-3">
+            <p className="truncate text-sm font-semibold text-fg">{user.name}</p>
+            <p className="truncate text-xs text-muted">{user.email}</p>
+            <p className="mt-1 font-mono text-[11px] text-subtle">
+              Cuenta local desde {new Date(user.createdAt).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </p>
+          </div>
+          <div className="p-1.5">
+            <MenuItem onClick={choose(onSettings)}>Ajustes</MenuItem>
+            <MenuItem onClick={choose(onTutorial)}>Ver tutorial</MenuItem>
+            <MenuItem danger onClick={choose(onSignOut)}>
+              Cerrar sesión
+            </MenuItem>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MenuItem({ children, onClick, danger }: { children: string; onClick: () => void; danger?: boolean }) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      className={`w-full rounded-lg px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:bg-fg/10 ${danger ? 'text-danger hover:bg-danger/10' : 'text-fg-2 hover:bg-fg/5'}`}
+    >
+      {children}
+    </button>
+  )
+}
