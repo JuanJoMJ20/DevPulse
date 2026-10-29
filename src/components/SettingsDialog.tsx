@@ -47,3 +47,53 @@ export function SettingsDialog({ settings, onChange, onClose }: SettingsDialogPr
               </button>
             ))}
           </div>
+          <p className="mt-2 text-xs text-subtle">«Sistema» sigue el modo claro u oscuro de Windows.</p>
+        </Section>
+
+        <Section title="Pomodoro">
+          <div className="grid grid-cols-3 gap-3">
+            <MinutesField label="Enfoque" value={settings.focusMinutes} min={5} max={90} onChange={(v) => set('focusMinutes', v)} />
+            <MinutesField label="Pausa" value={settings.shortMinutes} min={1} max={30} onChange={(v) => set('shortMinutes', v)} />
+            <MinutesField label="Pausa larga" value={settings.longMinutes} min={5} max={60} onChange={(v) => set('longMinutes', v)} />
+          </div>
+          <p className="mt-2 text-xs text-subtle">Si el temporizador está en marcha, el cambio se aplica a la siguiente sesión.</p>
+        </Section>
+
+        <Section title="IA">
+          <label className="block">
+            <span className="mb-1.5 block text-sm text-fg-2">Preguntar cómo me siento</span>
+            <select
+              value={settings.checkInMinutes}
+              onChange={(e) => set('checkInMinutes', Number(e.target.value))}
+              className="h-10 w-full rounded-lg border border-control bg-sunken px-3 text-sm text-fg outline-none focus:border-accent"
+            >
+              {CHECK_IN_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="mt-4 flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm text-fg-2">Activar el bloqueador con carga alta</p>
+              <p className="mt-0.5 text-xs text-subtle">Al entrar en Enfoque Absoluto, cierra tus apps de distracción.</p>
+            </div>
+            <Switch checked={settings.autoBlock} onChange={(v) => set('autoBlock', v)} label="Activar el bloqueador con carga alta" />
+          </div>
+        </Section>
+      </div>
+
+      <div className="mt-8 flex items-center justify-between gap-3 border-t border-line pt-5">
+        <button type="button" onClick={() => onChange(DEFAULT_SETTINGS)} className={BUTTON_SECONDARY}>
+          Restablecer
+        </button>
+        <button type="button" onClick={onClose} className={BUTTON_PRIMARY}>
+          Listo
+        </button>
+      </div>
+    </Dialog>
+  )
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
