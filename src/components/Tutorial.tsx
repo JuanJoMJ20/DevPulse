@@ -82,3 +82,45 @@ export function Tutorial({ steps: allSteps, onClose }: TutorialProps) {
         <div
           aria-hidden
           className="pointer-events-none fixed rounded-2xl ring-2 ring-accent transition-all duration-300 ease-out"
+          style={{
+            left: rect.left - PAD,
+            top: rect.top - PAD,
+            width: rect.width + PAD * 2,
+            height: rect.height + PAD * 2,
+            boxShadow: '0 0 0 9999px rgb(2 4 8 / 0.72), 0 0 40px 4px var(--glow)',
+          }}
+        />
+      ) : (
+        <div aria-hidden className="fixed inset-0 bg-[rgb(2_4_8/0.78)] backdrop-blur-sm" />
+      )}
+
+      <div
+        ref={cardRef}
+        key={index}
+        className="animate-rise fixed rounded-2xl border border-line bg-elevated p-5 shadow-[var(--shadow-pop)]"
+        style={{ width: CARD_W, ...card }}
+      >
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent" aria-live="polite">
+          Paso {index + 1} de {steps.length}
+        </p>
+        <h2 id="tour-title" className="mt-1.5 text-base font-semibold tracking-tight text-fg">
+          {step.title}
+        </h2>
+        <p id="tour-body" className="mt-2 text-sm leading-relaxed text-muted">
+          {step.body}
+        </p>
+
+        <div className="mt-4 flex gap-1" aria-hidden>
+          {steps.map((_, i) => (
+            <span key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= index ? 'bg-accent-fill' : 'bg-fg/10'}`} />
+          ))}
+        </div>
+
+        <div className="mt-4 flex items-center justify-between">
+          <button type="button" onClick={onClose} className="rounded px-1 text-xs text-muted transition hover:text-fg">
+            {isLast ? 'Cerrar' : 'Saltar tutorial'}
+          </button>
+          <div className="flex gap-2">
+            {index > 0 && (
+              <button
+                type="button"
