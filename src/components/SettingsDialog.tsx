@@ -97,3 +97,53 @@ export function SettingsDialog({ settings, onChange, onClose }: SettingsDialogPr
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section>
+      <h3 className="mb-3 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-subtle">{title}</h3>
+      {children}
+    </section>
+  )
+}
+
+function MinutesField({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (v: number) => void }) {
+  const id = useId()
+  // Borrador mientras escribes: se valida al salir del campo o pulsar Enter, no en cada tecla
+  const [draft, setDraft] = useState(String(value))
+  useEffect(() => setDraft(String(value)), [value])
+
+  const commit = () => {
+    const n = Math.round(Number(draft))
+    const next = Number.isFinite(n) && draft.trim() !== '' ? Math.min(max, Math.max(min, n)) : value
+    setDraft(String(next))
+    if (next !== value) onChange(next)
+  }
+
+  return (
+    <div>
+      <label htmlFor={id} className="mb-1.5 block text-sm text-fg-2">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          id={id}
+          type="number"
+          inputMode="numeric"
+          min={min}
+          max={max}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => e.key === 'Enter' && commit()}
+          aria-describedby={`${id}-range`}
+          className="h-10 w-full rounded-lg border border-control bg-sunken pr-12 pl-3 font-mono text-sm text-fg tabular-nums outline-none focus:border-accent"
+        />
+        <span aria-hidden className="pointer-events-none absolute inset-y-0 right-3 grid place-items-center text-xs text-subtle">
+          min
+        </span>
+      </div>
+      <p id={`${id}-range`} className="mt-1 text-[11px] text-subtle">
+        De {min} a {max}
+      </p>
+    </div>
+  )
+}
