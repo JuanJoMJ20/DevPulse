@@ -124,3 +124,45 @@ export function Tutorial({ steps: allSteps, onClose }: TutorialProps) {
             {index > 0 && (
               <button
                 type="button"
+                onClick={prev}
+                className="rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-fg-2 transition hover:border-line-strong hover:text-fg"
+              >
+                Anterior
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={next}
+              autoFocus
+              className="rounded-lg bg-accent-fill px-3.5 py-1.5 text-xs font-semibold text-on-accent transition hover:bg-accent-hover"
+            >
+              {isLast ? 'Empezar a usar DevPulse' : 'Siguiente'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** Coloca la tarjeta debajo, encima o al lado del elemento, siempre dentro de la ventana */
+function cardPosition(rect: DOMRect | null): { left: number; top: number } {
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const clampX = (x: number) => Math.min(Math.max(16, x), vw - CARD_W - 16)
+  const clampY = (y: number) => Math.min(Math.max(16, y), vh - CARD_H - 16)
+
+  if (!rect) return { left: (vw - CARD_W) / 2, top: (vh - CARD_H) / 2 }
+
+  // Elementos muy altos: la tarjeta va al lado, a media altura de lo visible
+  if (rect.height > vh * 0.55) {
+    const visibleMid = (Math.max(rect.top, 0) + Math.min(rect.bottom, vh)) / 2
+    const right = rect.right + PAD + GAP
+    const left = right + CARD_W < vw - 16 ? right : rect.left - PAD - GAP - CARD_W >= 16 ? rect.left - PAD - GAP - CARD_W : rect.right - CARD_W - 24
+    return { left: clampX(left), top: clampY(visibleMid - CARD_H / 2) }
+  }
+
+  const below = rect.bottom + PAD + GAP
+  const top = below + CARD_H < vh ? below : rect.top - PAD - GAP - CARD_H
+  return { left: clampX(rect.left + rect.width / 2 - CARD_W / 2), top: clampY(top) }
+}
