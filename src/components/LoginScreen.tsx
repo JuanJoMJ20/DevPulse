@@ -197,3 +197,70 @@ export function LoginScreen({ hasUsers, onAuthenticated }: LoginScreenProps) {
                   className={`${INPUT} pr-24`}
                 />
                 <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  aria-pressed={showPassword}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  className="absolute inset-y-0 right-2 my-auto h-8 rounded-md px-2.5 text-xs font-medium text-muted transition hover:bg-fg/5 hover:text-fg"
+                >
+                  {showPassword ? 'Ocultar' : 'Mostrar'}
+                </button>
+              </div>
+              {mode === 'register' && password.length > 0 && (
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="flex flex-1 gap-1" aria-hidden>
+                    {[0, 1, 2, 3].map((i) => (
+                      <span key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < strength ? STRENGTH[strength].bar : 'bg-fg/10'}`} />
+                    ))}
+                  </div>
+                  <span id={ids.strength} className={`shrink-0 whitespace-nowrap text-right text-xs font-medium ${STRENGTH[strength].text}`}>
+                    Seguridad: {STRENGTH[strength].label.toLowerCase()}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {mode === 'login' && (
+              <label className="flex cursor-pointer items-center gap-2.5 text-sm text-fg-2">
+                <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="size-4 accent-[var(--accent-fill)]" />
+                Mantener la sesión iniciada en este equipo
+              </label>
+            )}
+
+            {error && (
+              <p id={ids.error} role="alert" className="animate-rise rounded-lg border border-warn/40 bg-warn/10 px-3 py-2.5 text-sm text-fg">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={busy}
+              className="flex h-11 w-full items-center justify-center rounded-xl bg-accent-fill text-sm font-semibold text-on-accent shadow-[0_0_28px_-6px_var(--glow)] transition hover:bg-accent-hover disabled:cursor-wait disabled:opacity-70"
+            >
+              {busy ? 'Comprobando…' : mode === 'login' ? 'Entrar' : 'Crear cuenta y empezar'}
+            </button>
+          </form>
+
+          <p className="mt-8 text-center text-xs leading-relaxed text-subtle">
+            Tu cuenta y tus datos se guardan solo en este equipo, y la contraseña nunca en texto plano. DevPulse no envía nada a ningún servidor.
+          </p>
+        </div>
+      </main>
+    </div>
+  )
+}
+
+/** Marca: el icono conserva sus colores en los dos temas */
+export function Logo() {
+  return (
+    <div className="flex items-center gap-3">
+      <div aria-hidden className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-[#67e8f9] to-[#0891b2] shadow-[0_0_24px_-4px_var(--glow)]">
+        <svg viewBox="0 0 24 24" className="size-5 text-[#05070b]" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 12h4l2.5-6 5 12L17 12h4" />
+        </svg>
+      </div>
+      <span className="text-[17px] font-semibold tracking-tight text-fg">DevPulse</span>
+    </div>
+  )
+}
