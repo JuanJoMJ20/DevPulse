@@ -131,3 +131,69 @@ export function LoginScreen({ hasUsers, onAuthenticated }: LoginScreenProps) {
       <main className="flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm">
           <div className="mb-8 lg:hidden">
+            <Logo />
+          </div>
+
+          <h1 className="text-2xl font-semibold tracking-tight text-fg">{mode === 'login' ? 'Bienvenido de nuevo' : 'Crea tu cuenta'}</h1>
+          <p className="mt-1.5 text-sm text-muted">{mode === 'login' ? 'Inicia sesión para seguir donde lo dejaste.' : 'Tu modelo personal empieza a aprender desde hoy.'}</p>
+
+          <div role="tablist" aria-label="Acceso" className="mt-8 grid grid-cols-2 rounded-xl border border-line bg-sunken p-1">
+            {(['login', 'register'] as Mode[]).map((m) => (
+              <button
+                key={m}
+                role="tab"
+                type="button"
+                id={`${ids.panel}-${m}`}
+                aria-selected={mode === m}
+                aria-controls={ids.panel}
+                onClick={() => switchMode(m)}
+                className={`rounded-lg py-2 text-sm font-medium transition ${mode === m ? 'bg-elevated text-fg shadow-sm' : 'text-muted hover:text-fg'}`}
+              >
+                {m === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
+              </button>
+            ))}
+          </div>
+
+          <form id={ids.panel} role="tabpanel" aria-labelledby={`${ids.panel}-${mode}`} onSubmit={submit} className="mt-6 space-y-4" noValidate>
+            {mode === 'register' && (
+              <div>
+                <label htmlFor={ids.name} className="mb-1.5 block text-xs font-medium text-fg-2">
+                  Nombre
+                </label>
+                <input id={ids.name} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="Cómo quieres que te llame" className={INPUT} autoFocus />
+              </div>
+            )}
+            <div>
+              <label htmlFor={ids.email} className="mb-1.5 block text-xs font-medium text-fg-2">
+                Correo electrónico
+              </label>
+              <input
+                id={ids.email}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                placeholder="tu@correo.com"
+                aria-invalid={!!error}
+                aria-describedby={error ? ids.error : undefined}
+                className={INPUT}
+                autoFocus={mode === 'login'}
+              />
+            </div>
+            <div>
+              <label htmlFor={ids.password} className="mb-1.5 block text-xs font-medium text-fg-2">
+                Contraseña
+              </label>
+              <div className="relative">
+                <input
+                  id={ids.password}
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                  placeholder={mode === 'register' ? 'Mínimo 8 caracteres' : '••••••••'}
+                  aria-invalid={!!error}
+                  aria-describedby={[mode === 'register' && password ? ids.strength : '', error ? ids.error : ''].filter(Boolean).join(' ') || undefined}
+                  className={`${INPUT} pr-24`}
+                />
+                <button
