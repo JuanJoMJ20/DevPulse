@@ -49,3 +49,54 @@ export function MetricsPanel({ className, load, history, efficiency, focusMinute
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="font-mono text-4xl font-medium tracking-tight text-fg tabular-nums">
+            {load}
+            <span className="text-lg text-subtle">/100</span>
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            {!signals ? 'Simulada (modo navegador)' : signals.model.samples > 0 ? `Predicha por tu modelo personal (${signals.model.samples} respuestas)` : 'Predicha con los pesos de partida'}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="font-mono text-2xl font-medium text-accent tabular-nums">{efficiency === null ? '—' : `${efficiency}%`}</p>
+          <p className="text-xs text-muted">Eficiencia</p>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <Sparkline data={history} />
+        <div className="mt-1 flex justify-between font-mono text-[11px] text-subtle">
+          <span>hace 2 min</span>
+          <span className="text-danger">umbral de fatiga</span>
+          <span>ahora</span>
+        </div>
+      </div>
+
+      {signals && (
+        <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
+          {(Object.keys(FACTOR_LABELS) as (keyof Signals['factors'])[]).map((k) => (
+            <li key={k}>
+              <div className="flex justify-between text-xs text-muted">
+                <span>{FACTOR_LABELS[k]}</span>
+                <span className="font-mono tabular-nums">{Math.round(signals.factors[k] * 100)}</span>
+              </div>
+              <div className="mt-1 h-1 overflow-hidden rounded-full bg-fg/10" aria-hidden>
+                <div className="h-full rounded-full bg-accent-fill transition-[width] duration-700" style={{ width: `${signals.factors[k] * 100}%` }} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      {signals && !signals.keyboard && <p className="mt-2 text-xs text-warn">No pude leer el ritmo de tecleo; uso solo las demás señales.</p>}
+
+      <dl className="mt-5 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-line bg-line">
+        {stats.map((s) => (
+          <div key={s.label} className="bg-elevated px-3 py-2.5">
+            <dt className="truncate text-xs text-muted">{s.label}</dt>
+            <dd className="mt-0.5 font-mono text-lg font-medium text-fg tabular-nums">{s.value}</dd>
+            <dd className="truncate text-[11px] text-subtle">{s.hint}</dd>
+          </div>
+        ))}
+      </dl>
+    </Panel>
+  )
+}
