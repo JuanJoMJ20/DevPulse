@@ -64,3 +64,70 @@ export function DeepWorkHeatmap({ className, log }: { className?: string; log: F
       title="Mapa de flujo profundo"
       className={className}
       actions={
+        <span className="font-mono text-sm font-semibold text-fg" title="Total de enfoque en 7 días">
+          {formatMinutes(totalMin)}
+        </span>
+      }
+    >
+      <div className="relative">
+        <div
+          tabIndex={0}
+          role="group"
+          aria-label="Minutos de enfoque por día y hora. Usa las flechas para recorrerlo."
+          onKeyDown={onKeyDown}
+          onFocus={() => setCursor((c) => c ?? { d: 6, h: new Date().getHours() })}
+          onBlur={() => setCursor(null)}
+          onMouseLeave={() => setCursor(null)}
+          className="grid grid-cols-[auto_repeat(24,minmax(0,1fr))] gap-[3px] rounded-md"
+        >
+          <span />
+          {HOURS.map((h) => (
+            <span key={h} aria-hidden className="pb-1 text-center font-mono text-[11px] text-subtle">
+              {h % 6 === 0 ? String(h).padStart(2, '0') : ''}
+            </span>
+          ))}
+          {week.map((day, d) => (
+            <div key={d} className="contents">
+              <span aria-hidden className={`self-center pr-2 font-mono text-[11px] capitalize leading-none ${day.isToday ? 'font-semibold text-accent' : 'text-muted'}`}>
+                {day.label}
+              </span>
+              {day.minutes.map((min, h) => {
+                const active = cursor?.d === d && cursor.h === h
+                return (
+                  <span
+                    key={h}
+                    aria-hidden
+                    onMouseEnter={() => setCursor({ d, h })}
+                    className={`aspect-square rounded-[3px] transition-transform duration-150 ${SCALE[bucket(min)]} ${active ? 'scale-125 ring-2 ring-fg' : ''}`}
+                  />
+                )
+              })}
+            </div>
+          ))}
+        </div>
+
+        {totalMin === 0 && (
+          <div className="pointer-events-none absolute inset-0 grid place-items-center">
+            <p className="rounded-lg border border-line bg-elevated/95 px-4 py-2 text-center text-xs text-muted shadow-[var(--shadow-panel)]">
+              Completa tu primera sesión de enfoque
+              <br />y aquí verás cuándo fluyes mejor.
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <p className="min-h-4 font-mono text-muted" aria-live="polite">
+          {readout}
+        </p>
+        <div className="flex items-center gap-1.5 text-subtle">
+          <span>Menos</span>
+          {SCALE.map((c, i) => (
+            <span key={c} title={SCALE_LABELS[i]} className={`size-3 rounded-[2px] ${c}`} />
+          ))}
+          <span>Más</span>
+        </div>
+      </div>
+    </Panel>
+  )
+}
