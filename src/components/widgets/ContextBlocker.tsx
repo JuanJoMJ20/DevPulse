@@ -65,3 +65,71 @@ export function ContextBlocker({ className, armed, apps, closedToday, canBlock, 
               'Solo funciona en la app de escritorio'
             ) : armed ? (
               <>
+                Cierro {blockedCount} apps · <span className="font-semibold text-accent tabular-nums">{closedToday}</span> cerradas hoy
+              </>
+            ) : (
+              'Las distracciones pueden pasar'
+            )}
+          </p>
+        </div>
+      </div>
+
+      <ul className="space-y-0.5" aria-label="Apps de la lista">
+        {apps.map((s) => {
+          const active = armed && s.blocked
+          return (
+            <li key={s.id} className="flex items-center justify-between gap-2 rounded-lg px-1.5 py-1.5">
+              <span className="flex min-w-0 items-center gap-2.5">
+                <span
+                  aria-hidden
+                  className={`grid size-7 shrink-0 place-items-center rounded-md font-mono text-xs uppercase transition ${active ? 'bg-fg/5 text-subtle line-through' : 'bg-fg/10 text-fg-2'}`}
+                >
+                  {s.name.charAt(0)}
+                </span>
+                <span className="min-w-0">
+                  <span className={`block truncate text-sm transition ${active ? 'text-muted' : 'text-fg-2'}`}>{s.name}</span>
+                  <span className="block truncate font-mono text-[11px] text-subtle">{s.process}</span>
+                </span>
+              </span>
+              <span className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => onRemoveApp(s.id)}
+                  aria-label={`Quitar ${s.name} de la lista`}
+                  title={`Quitar ${s.name} de la lista`}
+                  className="grid size-7 place-items-center rounded text-subtle transition hover:bg-danger/10 hover:text-danger"
+                >
+                  <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden>
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                </button>
+                <Switch small checked={s.blocked} onChange={(v) => onToggleApp(s.id, v)} label={`Bloquear ${s.name}`} />
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+
+      <form onSubmit={addApp} className="mt-2">
+        <input
+          value={newProcess}
+          onChange={(e) => {
+            setNewProcess(e.target.value)
+            setHint(null)
+          }}
+          placeholder="Añadir programa (ej. steam.exe)"
+          aria-label="Añadir programa a bloquear"
+          aria-describedby="blocker-hint"
+          className="w-full rounded-lg border border-dashed border-control bg-transparent px-2 py-1.5 font-mono text-xs text-fg-2 outline-none placeholder:text-subtle focus:border-solid focus:border-accent focus:bg-sunken"
+        />
+        <p id="blocker-hint" className={`mt-1 px-1.5 text-xs ${hint ? 'text-warn' : 'sr-only'}`} aria-live="polite">
+          {hint ?? 'Escribe el nombre del programa y pulsa Enter'}
+        </p>
+      </form>
+
+      <p className="mt-auto pt-3 text-xs leading-relaxed text-subtle">
+        Primero pido a cada app que se cierre para que guarde lo pendiente. Si sigue abierta, la cierro a la fuerza.
+      </p>
+    </Panel>
+  )
+}
