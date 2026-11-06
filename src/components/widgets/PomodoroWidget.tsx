@@ -132,3 +132,137 @@ export function PomodoroWidget({
   const size = focus ? 280 : 208
   const stroke = focus ? 10 : 8
   const r = (size - stroke) / 2 - 6
+  const circumference = 2 * Math.PI * r
+  const ticks = 60
+  const cycleDone = completedToday % SESSIONS_PER_CYCLE
+
+  return (
+    <Panel
+      id="pomodoro"
+      eyebrow="Deep Work · Sesión actual"
+      title="Temporizador y tarea"
+      className={className}
+      actions={
+        <span className="font-mono text-xs text-subtle">
+          <span className="text-fg tabular-nums">{completedToday}</span> sesiones hoy
+        </span>
+      }
+    >
+      <div className={`grid flex-1 items-center gap-6 ${focus ? 'grid-cols-1 py-4' : 'grid-cols-1 sm:grid-cols-[auto_1fr]'}`}>
+        {/* ── Anillo ───────────────────────────── */}
+        <div className="flex flex-col items-center gap-4">
+          <div data-tour="pomodoro-modes" role="radiogroup" aria-label="Tipo de sesión" className="inline-flex rounded-lg border border-line bg-sunken p-0.5">
+            {(Object.keys(MODE_LABELS) as Mode[]).map((m) => (
+              <button
+                key={m}
+                type="button"
+                role="radio"
+                aria-checked={mode === m}
+                onClick={() => switchMode(m)}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${mode === m ? 'bg-elevated text-fg shadow-sm' : 'text-muted hover:text-fg'}`}
+              >
+                {MODE_LABELS[m]} <span className="font-mono text-subtle">{minutes[m]}′</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="relative" style={{ width: size, height: size }}>
+            <svg viewBox={`0 0 ${size} ${size}`} className="absolute inset-0 -rotate-90" aria-hidden>
+              <defs>
+                <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" style={{ stopColor: 'var(--accent)' }} />
+                  <stop offset="100%" style={{ stopColor: 'var(--accent-fill)' }} />
+                </linearGradient>
+              </defs>
+              {Array.from({ length: ticks }, (_, i) => {
+                const a = (i / ticks) * Math.PI * 2
+                const outer = size / 2 - 1
+                const inner = outer - (i % 5 === 0 ? 5 : 3)
+                const lit = i / ticks <= progress
+                return (
+                  <line
+                    key={i}
+                    x1={size / 2 + Math.cos(a) * inner}
+                    y1={size / 2 + Math.sin(a) * inner}
+                    x2={size / 2 + Math.cos(a) * outer}
+                    y2={size / 2 + Math.sin(a) * outer}
+                    style={{ stroke: lit ? 'var(--accent-fill)' : 'var(--line)' }}
+                    strokeWidth={1}
+                  />
+                )
+              })}
+              <circle cx={size / 2} cy={size / 2} r={r} fill="none" style={{ stroke: 'var(--line)' }} strokeWidth={stroke} />
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={r}
+                fill="none"
+                stroke={`url(#${gradientId})`}
+                strokeWidth={stroke}
+                strokeLinecap="round"
+                strokeDasharray={circumference}
+                strokeDashoffset={circumference * (1 - progress)}
+                className="transition-[stroke-dashoffset] duration-300 ease-linear"
+                style={{ filter: 'drop-shadow(0 0 6px var(--glow))' }}
+              />
+            </svg>
+
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span
+                role="timer"
+                aria-label={`${MODE_LABELS[mode]}: quedan ${Math.floor(remaining / 60)} minutos`}
+                className={`font-mono font-medium tabular-nums tracking-tight text-fg ${focus ? 'text-6xl' : 'text-[44px]'}`}
+              >
+                {formatTime(remaining)}
+              </span>
+              <span className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+                <span aria-hidden className={`size-1.5 rounded-full ${running ? 'animate-pulse-soft bg-accent-fill' : 'bg-subtle'}`} />
+                {running ? (mode === 'focus' ? 'En flujo' : 'Descansando') : 'En pausa'}
+              </span>
+            </div>
+          </div>
+
+          <div data-tour="pomodoro-start" className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => switchMode(mode)}
+              aria-label="Reiniciar la sesión"
+              title="Reiniciar la sesión"
+              className="grid size-10 place-items-center rounded-full border border-line text-muted transition hover:border-line-strong hover:text-fg"
+            >
+              <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={toggle}
+              aria-keyshortcuts="Space"
+              className="flex h-10 min-w-32 items-center justify-center gap-2 rounded-full bg-accent-fill px-5 text-sm font-semibold text-on-accent shadow-[0_0_24px_-4px_var(--glow)] transition hover:bg-accent-hover"
+            >
+              {running ? 'Pausar' : remaining < total ? 'Reanudar' : 'Iniciar'}
+              <kbd aria-hidden className="rounded bg-on-accent/15 px-1 font-mono text-[11px]">
+                Espacio
+              </kbd>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1.5" role="img" aria-label={`${cycleDone} de ${SESSIONS_PER_CYCLE} sesiones del ciclo`}>
+            {Array.from({ length: SESSIONS_PER_CYCLE }, (_, i) => (
+              <span key={i} className={`h-1.5 rounded-full transition-all ${i < cycleDone ? 'w-6 bg-accent-fill' : 'w-3 bg-fg/15'}`} />
+            ))}
+          </div>
+        </div>
+
+        {/* ── Tarea actual ─────────────────────── */}
+        <div data-tour="pomodoro-task" className={`min-w-0 ${focus ? 'mx-auto w-full max-w-md' : ''}`}>
+          {task ? (
+            <TaskEditor task={task} onChange={onTaskChange} onRemoveSubtask={onRemoveSubtask} onComplete={onCompleteTask} />
+          ) : (
+            <NewTaskForm label="¿En qué vas a trabajar?" onAdd={(title) => onTaskChange({ id: uid(), title, subtasks: [] })} />
+          )}
+
+          {/* En Enfoque Absoluto la cola desaparece: solo existe la tarea actual */}
+          {!focus && (
+            <div className="mt-5 border-t border-line pt-4">
