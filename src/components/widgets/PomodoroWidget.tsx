@@ -266,3 +266,137 @@ export function PomodoroWidget({
           {/* En Enfoque Absoluto la cola desaparece: solo existe la tarea actual */}
           {!focus && (
             <div className="mt-5 border-t border-line pt-4">
+              <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.14em] text-subtle">A continuación</p>
+              {queue.length > 0 && (
+                <ul className="space-y-0.5">
+                  {queue.map((q) => (
+                    <li key={q.id} className="flex items-center justify-between gap-2 rounded-md px-1 py-1 text-sm text-muted hover:bg-fg/5">
+                      <span className="truncate">{q.title}</span>
+                      <RemoveButton label={`Quitar «${q.title}» de la cola`} onClick={() => onRemoveFromQueue(q.id)} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <NewTaskForm compact label="Añadir a la cola…" onAdd={onAddToQueue} />
+            </div>
+          )}
+        </div>
+      </div>
+    </Panel>
+  )
+}
+
+function TaskEditor({
+  task,
+  onChange,
+  onRemoveSubtask,
+  onComplete,
+}: {
+  task: Task
+  onChange: (t: Task) => void
+  onRemoveSubtask: (id: string) => void
+  onComplete: () => void
+}) {
+  const doneCount = task.subtasks.filter((t) => t.done).length
+  const pct = task.subtasks.length ? (doneCount / task.subtasks.length) * 100 : 0
+
+  return (
+    <>
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">Tarea actual</p>
+        <button
+          type="button"
+          onClick={onComplete}
+          className="rounded-md border border-line px-2 py-0.5 text-xs font-medium text-muted transition hover:border-ok/40 hover:bg-ok/10 hover:text-ok"
+        >
+          ✓ Terminar tarea
+        </button>
+      </div>
+      <input
+        value={task.title}
+        onChange={(e) => onChange({ ...task, title: e.target.value })}
+        aria-label="Título de la tarea"
+        className="mt-1 w-full rounded-md bg-transparent text-lg leading-snug font-semibold tracking-tight text-fg outline-none placeholder:text-subtle focus:bg-fg/5"
+      />
+      <p className="mt-1 font-mono text-xs text-subtle">
+        {doneCount}/{task.subtasks.length} pasos
+      </p>
+
+      <div className="mt-3 h-1 overflow-hidden rounded-full bg-fg/10" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100} aria-label="Progreso de la tarea">
+        <div className="h-full rounded-full bg-accent-fill transition-[width] duration-500" style={{ width: `${pct}%` }} />
+      </div>
+
+      <ul className="mt-4 space-y-0.5">
+        {task.subtasks.map((t) => (
+          <li key={t.id} className="flex items-center gap-1">
+            <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-fg/5">
+              <input
+                type="checkbox"
+                checked={t.done}
+                onChange={() => onChange({ ...task, subtasks: task.subtasks.map((x) => (x.id === t.id ? { ...x, done: !x.done } : x)) })}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden
+                className="grid size-4 shrink-0 place-items-center rounded border border-control transition peer-checked:border-accent-fill peer-checked:bg-accent-fill peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent"
+              >
+                {t.done && (
+                  <svg viewBox="0 0 24 24" className="size-3 text-on-accent" fill="none" stroke="currentColor" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12l5 5L19 7" />
+                  </svg>
+                )}
+              </span>
+              <span className={`truncate text-sm transition ${t.done ? 'text-subtle line-through' : 'text-fg-2'}`}>{t.text}</span>
+            </label>
+            <RemoveButton label={`Borrar el paso «${t.text}»`} onClick={() => onRemoveSubtask(t.id)} />
+          </li>
+        ))}
+      </ul>
+      <NewTaskForm compact label="Añadir paso…" onAdd={(text) => onChange({ ...task, subtasks: [...task.subtasks, { id: uid(), text, done: false }] })} />
+    </>
+  )
+}
+
+function NewTaskForm({ label, onAdd, compact }: { label: string; onAdd: (text: string) => void; compact?: boolean }) {
+  const [text, setText] = useState('')
+  const submit = (e: FormEvent) => {
+    e.preventDefault()
+    const v = text.trim()
+    if (!v) return
+    onAdd(v)
+    setText('')
+  }
+  return (
+    <form onSubmit={submit} className={compact ? 'mt-1' : ''}>
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder={label}
+        aria-label={label}
+        className={
+          compact
+            ? 'w-full rounded-lg border border-dashed border-control bg-transparent px-2 py-1.5 text-sm text-fg-2 outline-none placeholder:text-subtle focus:border-solid focus:border-accent focus:bg-fg/5'
+            : 'w-full rounded-xl border border-control bg-sunken px-4 py-3 text-base text-fg outline-none transition placeholder:text-subtle focus:border-accent'
+        }
+      />
+      <p className="sr-only">Pulsa Enter para añadir</p>
+    </form>
+  )
+}
+
+/** Botón de quitar siempre visible (antes solo aparecía al pasar el ratón) */
+function RemoveButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className="grid size-7 shrink-0 place-items-center rounded text-subtle transition hover:bg-danger/10 hover:text-danger"
+    >
+      <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden>
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
+    </button>
+  )
+}
